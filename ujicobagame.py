@@ -85,18 +85,18 @@ st.markdown("""
 
 # 2. Basis Data Barang & Variabel Game
 KUMPULAN_BARANG = [
-    {"nama": "Aku sudah kenyang tapi ingin 🍱 Beli Cireng Bumbu", "jenis": "Keinginan"},
-    {"nama": "Buku tulisaku hilang, aku mau beli ✏️ Buku Tulis Sekolah", "jenis": "Kebutuhan"},
-    {"nama": "Aku mau 💎 Top Up Diamond Game", "jenis": "Keinginan"},
-    {"nama": "Sepatuku rusak, aku ingin minta 👟 Sepatu Sekolah Hitam", "jenis": "Kebutuhan"},
-    {"nama": "🥤 Es Boba Kekinian", "jenis": "Keinginan"},
-    {"nama": "Airku habis, aku mau beli 💧 Air Minum Botol", "jenis": "Kebutuhan"},
-    {"nama": "Aku rangking 1, aku mau beli 🚲 Sepeda ", "jenis": "Keinginan"},
+    {"nama": "🍱 Aku sudah kenyang tapi ingin Beli Cireng Bumbu", "jenis": "Keinginan"},
+    {"nama": "✏️ Buku tulis aku hilang, aku mau beli buku Tulis Sekolah", "jenis": "Kebutuhan"},
+    {"nama": "Aku mau Top Up Diamond Game 💎", "jenis": "Keinginan"},
+    {"nama": "Sepatuku rusak, aku ingin minta Sepatu Sekolah Hitam 👟", "jenis": "Kebutuhan"},
+    {"nama": "Es Boba Kekinian 🥤", "jenis": "Keinginan"},
+    {"nama": "Airku habis, aku mau beli Air Minum Botol 💧", "jenis": "Kebutuhan"},
+    {"nama": "Aku rangking 1, aku mau beli Sepeda 🚲", "jenis": "Keinginan"},
     {"nama": "Aku jatuh dari sepeda, aku beli 🩹 Plester Luka", "jenis": "Kebutuhan"},
     {"nama": "Hari ini aku ulang tahun aku mau beli 🧸 Boneka Beruang Besar", "jenis": "Keinginan"},
     {"nama": "🎒 Tas Ransel Baru (Tas Lama Rusak)", "jenis": "Kebutuhan"},
     {"nama": "🍿 Popcorn Bioskop", "jenis": "Keinginan"},
-    {"nama": "Aku sudah ada banyak kaos kaki tappi aku belum meiliki yang warna biru. aku mau beli🧦 Kaos Kaki Biru", "jenis": "Kebutuhan"},
+    {"nama": "Aku sudah ada banyak kaos kaki tappi aku belum meiliki yang warna biru. aku mau beli Kaos Kaki Biru 🧦", "jenis": "Kebutuhan"},
 ]
 
 if 'game_stage' not in st.session_state:
