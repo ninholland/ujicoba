@@ -1,251 +1,79 @@
 import streamlit as st
-import time
-import random
 
-# 1. Pengaturan Halaman & Desain Visual (Latar Belakang Biru Cerah & Teks Besar)
-st.set_page_config(page_title="Tebak Kilat Kebutuhan vs Keinginan", page_icon="⚡", layout="centered")
+st.set_page_config(page_title="Tic-Tac-Toe Anti-Narkoba", layout="centered")
 
-st.markdown("""
-<style>
-    /* Latar belakang diganti jadi Biru Cerah Kartun */
-    .stApp { background-color: #70D6FF; } 
-    
-    /* Desain Beranda Awal */
-    .welcome-card {
-        background-color: #FF70A6;
-        border: 6px solid #000000;
-        border-radius: 20px;
-        padding: 30px;
-        text-align: center;
-        color: #FFFFFF;
-        box-shadow: 8px 8px 0px #000000;
-        margin-bottom: 25px;
-    }
-    
-    /* Kotak Input Nama Kelompok & Nama Barang yang Diperbesar */
-    .input-container {
-        background-color: #FFFFFF;
-        border: 6px solid #000000;
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 8px 8px 0px #000000;
-        margin-bottom: 25px;
-        text-align: center;
-    }
-    
-    /* Modifikasi kolom teks bawaan Streamlit agar tulisannya raksasa */
-    div.stTextInput > div > div > input {
-        font-size: 30px !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        height: 70px !important;
-        border: 4px solid #000000 !important;
-        border-radius: 10px !important;
-        background-color: #FFF !important;
-        color: #000000 !important;
-    }
-    
-    .nama-barang {
-        font-size: 45px;
-        font-weight: bold;
-        color: #FF70A6;
-        text-transform: uppercase;
-        margin: 20px 0;
-    }
-    
-    /* Papan Skor & Timer Digital */
-    .skor-screen {
-        background-color: #000000;
-        color: #00FF00;
-        font-family: 'Courier New', monospace;
-        font-size: 32px;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: center;
-        margin-bottom: 20px;
-        border: 3px solid #333;
-    }
-    
-    /* Tampilan Skor Akhir Raksasa */
-    .final-score-box {
-        background-color: #000000;
-        color: #5CE1E6;
-        font-family: 'Courier New', monospace;
-        font-size: 60px;
-        font-weight: bold;
-        padding: 20px;
-        border-radius: 15px;
-        text-align: center;
-        border: 5px solid #FFFFFF;
-        box-shadow: 0px 0px 20px #5CE1E6;
-        margin: 20px 0;
-    }
-</style>
-""", unsafe_allow_html=True)
+st.title("❌⭕ Game Tic-Tac-Toe: Sehat vs Narkoba")
+st.subheader("Mode Lokal 2 Pemain (Satu Layar)")
 
-# 2. Basis Data Barang & Variabel Game
-KUMPULAN_BARANG = [
-    {"nama": "🍱 Aku sudah kenyang tapi ingin Beli Cireng Bumbu", "jenis": "Keinginan"},
-    {"nama": "✏️ Buku tulis aku hilang, aku mau beli buku Tulis Sekolah", "jenis": "Kebutuhan"},
-    {"nama": "Aku mau Top Up Diamond Game 💎", "jenis": "Keinginan"},
-    {"nama": "Sepatuku rusak, aku ingin minta Sepatu Sekolah Hitam 👟", "jenis": "Kebutuhan"},
-    {"nama": "Es Boba Kekinian 🥤", "jenis": "Keinginan"},
-    {"nama": "Airku habis, aku mau beli Air Minum Botol 💧", "jenis": "Kebutuhan"},
-    {"nama": "Aku rangking 1, aku mau beli Sepeda 🚲", "jenis": "Keinginan"},
-    {"nama": "Aku jatuh dari sepeda, aku beli 🩹 Plester Luka", "jenis": "Kebutuhan"},
-    {"nama": "Hari ini aku ulang tahun aku mau beli 🧸 Boneka Beruang Besar", "jenis": "Keinginan"},
-    {"nama": "🎒 Tas Ransel Baru (Tas Lama Rusak)", "jenis": "Kebutuhan"},
-    {"nama": "🍿 Popcorn Bioskop", "jenis": "Keinginan"},
-    {"nama": "Aku sudah ada banyak kaos kaki tapi aku belum memiliki yang warna biru. aku mau beli Kaos Kaki Biru 🧦", "jenis": "Kebutuhan"},
-]
+# Inisialisasi State Game
+if 'board' not in st.session_state:
+    st.session_state.board = [""] * 9
+    st.session_state.current_player = "🍏 Tim Sehat"
+    st.session_state.winner = None
 
-if 'game_stage' not in st.session_state:
-    st.session_state.game_stage = 'home'
-    st.session_state.nama_kelompok = ""
-    st.session_state.skor = 0
-    st.session_state.barang_sekarang = None
-    st.session_state.waktu_mulai = None
-    st.session_state.barang_tersisa = []
-    st.session_state.list_jawaban = []
-    st.session_state.histori_game = []  # Menyimpan riwayat kelompok yang sudah main
-    st.session_state.waktu_habis_terpakai = 0
+# Fungsi Reset
+def reset_game():
+    st.session_state.board = [""] * 9
+    st.session_state.current_player = "🍏 Tim Sehat"
+    st.session_state.winner = None
 
-# 3. Alur Tampilan Game
+# Fungsi Cek Pemenang
+def check_winner(b):
+    win_patterns = [
+        (0, 1, 2), (3, 4, 5), (6, 7, 8),  # Baris
+        (0, 3, 6), (1, 4, 7), (2, 5, 8),  # Kolom
+        (0, 4, 8), (2, 4, 6)              # Diagonal
+    ]
+    for p in win_patterns:
+        if b[p[0]] == b[p[1]] == b[p[2]] != "":
+            return b[p[0]]
+    if "" not in b:
+        return "Seri"
+    return None
 
-# --- HALAMAN UTAMA (HOME) ---
-if st.session_state.game_stage == 'home':
-    st.markdown("""
-    <div class='welcome-card'>
-        <h1>👋 HALO ANAK-ANAK HEBAT! 👋</h1>
-        <p style='font-size: 20px;'>Selamat datang di Game Tebak Kilat ⚡</p>
-        <h3 style='color: #EFFF96;'>🎮 KEBUTUHAN VS KEINGINAN 🎮</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("<div class='input-container'><p style='font-size: 22px; font-weight: bold; color: black; margin-bottom: 5px;'>✍️ KETIK NAMA KELOMPOK DI SINI:</p>", unsafe_allow_html=True)
-    nama_input = st.text_input("", placeholder="Contoh: KELOMPOK 1 🐯", label_visibility="collapsed")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    if st.button("🚀 MULAI GAME SEKARANG", use_container_width=True, type="primary"):
-        if nama_input.strip() != "":
-            st.session_state.nama_kelompok = nama_input
-            st.session_state.game_stage = 'playing'
-            st.session_state.skor = 0
-            st.session_state.list_jawaban = []
-            st.session_state.waktu_mulai = time.time()
-            st.session_state.barang_tersisa = KUMPULAN_BARANG.copy()
-            random.shuffle(st.session_state.barang_tersisa)
-            st.session_state.barang_sekarang = st.session_state.barang_tersisa.pop()
-            st.rerun()
-        else:
-            st.error("⚠️ Nama kelompok diisi dulu ya, Kasih!")
+# Tombol Reset
+st.button("🔄 Ulangi Permainan", on_click=reset_game)
 
-    # --- HISTORI KELOMPOK (DITAMPILKAN DI BERANDA) ---
-    if st.session_state.histori_game:
-        st.markdown("<br><h3 style='color:black; text-align:center;'>🏆 PAPAN SKOR KELOMPOK 🏆</h3>", unsafe_allow_html=True)
-        for data in st.session_state.histori_game:
-            st.markdown(f"""
-            <div style='background-color:white; padding:15px; border:4px solid black; border-radius:12px; margin-bottom:10px; color:black;'>
-                <span style='font-size:20px; font-weight:bold;'>👥 {data['kelompok']}</span><br>
-                <span style='font-size:16px; color:#555;'>💰 Skor: <b>{data['skor']} Poin</b> | ⏱️ Waktu Bermain: <b>{data['durasi']} detik</b></span>
-            </div>
-            """, unsafe_allow_html=True)
-
-# --- HALAMAN SAAT GAME BERJALAN ---
-elif st.session_state.game_stage == 'playing':
-    waktu_berjalan = time.time() - st.session_state.waktu_mulai
-    waktu_sisa = max(0, 60 - int(waktu_berjalan))
-    
-    if waktu_sisa <= 0 or not st.session_state.barang_sekarang:
-        st.session_state.waktu_habis_terpakai = int(waktu_berjalan) if int(waktu_berjalan) < 60 else 60
-        # Data disimpan ke histori sebelum pindah halaman
-        st.session_state.histori_game.append({
-            "kelompok": st.session_state.nama_kelompok,
-            "skor": st.session_state.skor,
-            "durasi": st.session_state.waktu_habis_terpakai
-        })
-        st.session_state.game_stage = 'scoring'
-        st.rerun()
+# Informasi Giliran atau Hasil Akhir
+if st.session_state.winner is None:
+    st.write(f"📢 Giliran saat ini: *{st.session_state.current_player}*")
+else:
+    if st.session_state.winner == "🍏 Tim Sehat":
+        st.balloons()
+        st.success("🎉 SELAMAT! Tim Sehat Menang! Tubuhmu terlindungi dari zat adiktif berbahaya!")
+    elif st.session_state.winner == "💀 Tim Narkoba":
+        st.error("🚨 BAHAYA! Tim Narkoba Berhasil Menguasai Sel Tubuh! Segera lakukan rehabilitasi sebelum terlambat!")
     else:
-        st.markdown(f"<h2 style='text-align:center; color:black;'>🔥 KELOMPOK: {st.session_state.nama_kelompok} 🔥</h2>", unsafe_allow_html=True)
-        
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown(f"<div class='skor-screen'>💰 SKOR: {st.session_state.skor}</div>", unsafe_allow_html=True)
-        with c2:
-            st.markdown(f"<div class='skor-screen'>⏱️ WAKTU: {waktu_sisa}s</div>", unsafe_allow_html=True)
-            
-        st.markdown(f"""
-        <div class='input-container'>
-            <p style='color: #555; font-size: 18px; font-weight: bold;'>📦 NAMA BARANG:</p>
-            <div class='nama-barang'>{st.session_state.barang_sekarang['nama']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("<h3 style='text-align:center; color:black;'>PILIH KATEGORI:</h3>", unsafe_allow_html=True)
-        col_tombol_1, col_tombol_2 = st.columns(2)
-        
-        with col_tombol_1:
-            if st.button("👍 KEBUTUHAN", use_container_width=True, type="primary"):
-                status_benar = (st.session_state.barang_sekarang['jenis'] == "Kebutuhan")
-                st.session_state.skor += 100 if status_benar else -50
-                st.session_state.list_jawaban.append(f"{st.session_state.barang_sekarang['nama']}")
-                
-                if st.session_state.barang_tersisa:
-                    st.session_state.barang_sekarang = st.session_state.barang_tersisa.pop()
-                else:
-                    st.session_state.barang_sekarang = None
-                st.rerun()
-                
-        with col_tombol_2:
-            if st.button("🛍️ KEINGINAN", use_container_width=True):
-                status_benar = (st.session_state.barang_sekarang['jenis'] == "Keinginan")
-                st.session_state.skor += 100 if status_benar else -50
-                st.session_state.list_jawaban.append(f"{st.session_state.barang_sekarang['nama']}")
-                
-                if st.session_state.barang_tersisa:
-                    st.session_state.barang_sekarang = st.session_state.barang_tersisa.pop()
-                else:
-                    st.session_state.barang_sekarang = None
-                st.rerun()
-        
-        if st.session_state.list_jawaban:
-            st.markdown("<br><h4 style='color:black;'>📋 List Barang yang Sudah Muncul:</h4>", unsafe_allow_html=True)
-            for item in reversed(st.session_state.list_jawaban):
-                st.markdown(f"<div style='background-color:white; padding:10px; border:2px solid black; border-radius:5px; margin-bottom:5px; font-weight:bold; color:black;'>{item}</div>", unsafe_allow_html=True)
-                
-        time.sleep(1)
-        st.rerun()
+        st.warning("🤝 Hasil Seri! Pertahanan tubuhmu kuat, tapi ancaman narkoba tetap mengintai.")
 
-# --- HALAMAN HITUNG SKOR AKHIR ---
-elif st.session_state.game_stage == 'scoring':
-    st.markdown(f"<h2 style='text-align:center; color:black;'>🎉 SESI {st.session_state.nama_kelompok} SELESAI 🎉</h2>", unsafe_allow_html=True)
-    
-    wadah_skor_animasi = st.empty()
-    skor_target = st.session_state.skor
-    
-    if skor_target > 0:
-        langkah = max(10, skor_target // 20)
-        for angka_skor in range(0, skor_target + 1, langkah):
-            wadah_skor_animasi.markdown(f"<div class='final-score-box'>🔢 {angka_skor}</div>", unsafe_allow_html=True)
-            time.sleep(0.04)
-    elif skor_target < 0:
-        langkah = min(-10, skor_target // 20)
-        for angka_skor in range(0, skor_target - 1, langkah):
-            wadah_skor_animasi.markdown(f"<div class='final-score-box'>🔢 {angka_skor}</div>", unsafe_allow_html=True)
-            time.sleep(0.04)
+st.write("---")
+
+# Render Grid 3x3
+for row in range(3):
+    cols = st.columns(3)
+    for col in range(3):
+        idx = row * 3 + col
+        cell_value = st.session_state.board[idx]
+        
+        # Penamaan label tombol agar tidak kosong secara visual
+        label = cell_value if cell_value != "" else " "
+        
+        # Nonaktifkan tombol jika game sudah selesai atau kotak sudah terisi
+        disabled = (cell_value != "" or st.session_state.winner is not None)
+        
+        if cols[col].button(label, key=f"cell_{idx}", disabled=disabled, use_container_width=True):
+            # Isi papan
+            st.session_state.board[idx] = st.session_state.current_player
             
-    wadah_skor_animasi.markdown(f"<div class='final-score-box'>✨ {skor_target} POIN ✨</div>", unsafe_allow_html=True)
-    st.balloons()
-    
-    st.markdown(f"""
-    <div class='welcome-card' style='background-color: #2E86C1;'>
-        <h2>🎈 YEY SKOR KAMU LUAR BIASA! 🎈</h2>
-        <p style='font-size: 22px; font-weight: bold; color: #FFF;'>⏱️ Waktu Bermain: {st.session_state.waktu_habis_terpakai} Detik</p>
-        <p style='font-size: 18px;'>Pertahankan kerja keras kalian! 💪</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("🔄 KEMBALI KE BERANDA (KELOMPOK BARU)", use_container_width=True):
-        st.session_state.game_stage = 'home'
-        st.rerun()
+            # Cek status kemenangan
+            winner_check = check_winner(st.session_state.board)
+            if winner_check:
+                st.session_state.winner = winner_check
+            else:
+                # Ganti giliran pemain
+                st.session_state.current_player = "💀 Tim Narkoba" if st.session_state.current_player == "🍏 Tim Sehat" else "🍏 Tim Sehat"
+            
+            st.rerun()
+
+st.write("---")
+st.info("💡 *Aturan Edukasi:* Tim Sehat (🍏) harus memblokir pergerakan Tim Narkoba (💀) agar tidak berhasil membentuk garis lurus 3 kotak. Jangan biarkan narkoba merusak sistem pertahanan tubuh!")
